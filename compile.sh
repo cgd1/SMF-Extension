@@ -9,7 +9,7 @@ mkdir "${PWD}"/SMF/
 mkdir "${PWD}"/SMF/META-INF/
 
 #Compile the binaries
-idlc "${PWD}"/idl/Xsmf.idl
+idlc -I /usr/share/idl/libreoffice "${PWD}"/idl/Xsmf.idl
 regmerge -v "${PWD}"/SMF/Xsmf.rdb UCR "${PWD}"/idl/Xsmf.urd
 rm "${PWD}"/idl/Xsmf.urd
 
