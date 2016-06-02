@@ -27,15 +27,16 @@ cmd_folder = os.path.realpath(os.path.abspath
                               (os.path.split(inspect.getfile
                                              ( inspect.currentframe() ))[0]))
 if cmd_folder not in sys.path:
-    sys.path.insert(0, cmd_folder)  
+    sys.path.insert(0, cmd_folder)
 import smf
 
 def main(argv):
     main_smf = smf.SmfImpl(argv)
     arg_funct = ''
     arg_ticker = ''
+    arg_exchange = None
     try:
-        opts, args = getopt.getopt(argv, "f:t:",["function=","ticker="])
+        opts, args = getopt.getopt(argv, "f:t:e:",["function=","ticker="])
     except getopt.GetoptError:
         usage(2)
     for opt, arg in opts:
@@ -45,31 +46,37 @@ def main(argv):
             arg_funct = arg
         elif opt in ("-t", "--ticker"):
             arg_ticker = arg
+        elif opt == "-e":
+            arg_exchange = arg
     print ("Function tested is", arg_funct)
     print ("Ticker used is", arg_ticker)
+    if arg_exchange == None:
+        print ("Exchange: auto-lookup")
+    else:
+        print ("Exchange used is", arg_exchange)
     if arg_funct == "morningkey":
-        key_test(main_smf, arg_ticker)
+        key_test(main_smf, arg_ticker, arg_exchange)
     elif arg_funct == "morningfin":
-        fin_test(main_smf, arg_ticker, '')
+        fin_test(main_smf, arg_ticker, '', arg_exchange)
     elif arg_funct == "morningqfin":
-        fin_test(main_smf, arg_ticker, 'qtr')
+        fin_test(main_smf, arg_ticker, 'qtr', arg_exchange)
     elif arg_funct == "yahoo":
         yahoo_test(main_smf, arg_ticker)
     elif arg_funct == "advfn":
         advfn_test(main_smf, arg_ticker)
     sys.exit(2)
 
-def key_test(smf_py, ticker):
+def key_test(smf_py, ticker, exchange=None):
     test_data = []
     for d in range (1,948):
         test_data.append(ticker)
         test_data.append(d)
     for val in range (0,len(test_data),2):
         datacode = test_data[1 + val]
-        print (datacode,': ', smf_py.getMorningKey(ticker, datacode))
+        print (datacode,': ', smf_py.getMorningKey(ticker, datacode, exchange))
     sys.exit()
 
-def fin_test(smf_py, ticker, fin_type):
+def fin_test(smf_py, ticker, fin_type, exchange=None):
     test_data = []
     func_call = smf_py.getMorningFin
     if fin_type == 'qtr':
@@ -79,7 +86,7 @@ def fin_test(smf_py, ticker, fin_type):
         test_data.append(d)
     for val in range (0,len(test_data),2):
         datacode = test_data[1 + val]
-        print (datacode,': ', func_call(ticker, datacode))
+        print (datacode,': ', func_call(ticker, datacode, exchange))
     sys.exit()
 
 def yahoo_test(smf_py, ticker):
@@ -91,7 +98,7 @@ def yahoo_test(smf_py, ticker):
         datacode = test_data[1 + val]
         print (datacode,': ', smf_py.getYahoo(ticker, datacode))
     sys.exit()
-    
+
 def advfn_test(smf_py, ticker):
     test_data = []
     for d in range (1,5293):
@@ -102,15 +109,15 @@ def advfn_test(smf_py, ticker):
         datacode = test_data[1 + val]
         print (datacode,': ', smf_py.getADVFN(ticker, datacode))
     sys.exit()
-        
+
 def usage(err):
-    print ("Usage: smftest.py -f <function> -t <ticker>")
+    print ("Usage: smftest.py -f <function> -t <ticker> -e [exchange]")
     print ('Available functions are morningkey, morningfin, morningqfin, yahoo'
            'and advfn')
     if err == 2:
         sys.exit(2)
     else:
         sys.exit()
-        
+
 if __name__ == "__main__":
     main(sys.argv[1:])
