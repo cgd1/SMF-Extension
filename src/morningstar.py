@@ -20,7 +20,7 @@ import smf
 
 def query_morningstar(self, exchange, symbol, url_ending):
     """Query Morningstar for the data we want"""
-    #Determine whether we want key ratios or financials & query Morningstar.  
+    #Determine whether we want key ratios or financials & query Morningstar.
     if url_ending == '&region=usa&culture=en-US&cur=USD&order=desc':
         url = ('http://financials.morningstar.com/ajax/exportKR2CSV.html?'
                '&callback=?&t=%s:%s%s' % (exchange, symbol, url_ending))
@@ -49,7 +49,7 @@ def query_morningstar(self, exchange, symbol, url_ending):
         response.readline()
     return csv.reader(iterdecode(response,'utf-8'))
 
-def fetch_keyratios(self, ticker, datacode):
+def fetch_keyratios(self, ticker, datacode, exchange=None):
     """Get Morningstar key ratio data and return desired element to user"""
     #Check for sane user input for datacode.
     if datacode < 1 or datacode > 946:
@@ -57,12 +57,13 @@ def fetch_keyratios(self, ticker, datacode):
     #Check whether flags indicate that we already have the data we need.
     if self.keyratio_flag[0] == '1' or self.keyratio_flag[1] != ticker:
         #Query NASDAQ for exchange and check for errors.
-        exchange = smf.find_exchange(self, ticker)
-        if exchange not in ['XNYS', 'XASE', 'XNAS']:
-            return exchange
+        if exchange == None:
+            exchange = smf.find_exchange(self, ticker)
+            if exchange not in ['XNYS', 'XASE', 'XNAS']:
+                return exchange
         #Query Morningstar for key ratios and check for errors.
         url_ending = '&region=usa&culture=en-US&cur=USD&order=desc'
-        self.keyratio_reader = query_morningstar(self, exchange, ticker, 
+        self.keyratio_reader = query_morningstar(self, exchange, ticker,
                                                  url_ending)
         if self.keyratio_flag[0] == '1':
             return self.keyratio_reader
@@ -73,7 +74,7 @@ def fetch_keyratios(self, ticker, datacode):
             self.keyratio_data = [row for row in self.keyratio_reader]
             #Append day for ISO standard dates.
             for idx in range (2, 12):
-                self.keyratio_data[0][idx] += '-01' 
+                self.keyratio_data[0][idx] += '-01'
     #Check for existing datacode -> value map, if none exists then create it.
     if not hasattr(self, 'key_datacode_map'):
         self.key_datacode_map = keyratio_datacode_map()
@@ -95,24 +96,25 @@ def keyratio_datacode_map():
         row, col = divmod(idx - 1, 11)
         return allowed[row], col + 1
     #Create and return the dictionary.
-    return {datacode: mapping(datacode) 
+    return {datacode: mapping(datacode)
             for datacode in range(1, 947) }
 
-def fetch_financials(self, fin_type, ticker, datacode):
+def fetch_financials(self, fin_type, ticker, datacode, exchange=None):
     """Get Morningstar financial data and return desired element to user"""
     if datacode < 1 or datacode > 162:
         return 'Invalid Datacode'
     #Check whether flags indicate that we already have the data we need.
     flags = self.financial_flag
-    if fin_type == 'qtr': 
-        flags = self.qfinancial_flag   
+    if fin_type == 'qtr':
+        flags = self.qfinancial_flag
     if flags[0] == '1' or flags[1] != ticker:
-        #Query NASDAQ for exchange and check for errors.
-        exchange = smf.find_exchange(self,ticker)
-        if exchange not in ['XNYS', 'XASE', 'XNAS']:
-            return exchange
+        if exchange == None:
+            #Query NASDAQ for exchange and check for errors.
+            exchange = smf.find_exchange(self,ticker)
+            if exchange not in ['XNYS', 'XASE', 'XNAS']:
+                return exchange
         #Query Morningstar for financials and check for errors.
-        if fin_type == 'qtr':      
+        if fin_type == 'qtr':
             url_ending = ('&region=usa&culture=en-US&cur=USD&reportType=is'
                       '&period=3&dataType=A&order=desc&columnYear=5&rounding=3'
                       '&view=raw&r=113199&denominatorView=raw&number=3')
@@ -147,7 +149,7 @@ def financial_data_setup(self, financial_reader):
                    'Operating income', 'Interest Expense',
                    'Other income (expense)', 'Income before taxes',
                    'Income before income taxes', 'Provision for income taxes',
-                   'Net income from continuing operations', 
+                   'Net income from continuing operations',
                    'Net income from discontinuing ops', 'Other', 'Net income',
                    'Net income available to common shareholders', 'Basic',
                    'Diluted', 'EBITDA']
@@ -155,9 +157,9 @@ def financial_data_setup(self, financial_reader):
     #Otherwise add an empty row.
     self.financial_data = []
     raw_financial_data = [row for row in financial_reader]
-    rfd_header = [h[0] for h in raw_financial_data]            
+    rfd_header = [h[0] for h in raw_financial_data]
     ttm_count = 0
-    for d in header_list:                
+    for d in header_list:
         for i in raw_financial_data:
             #Handle corner case of first row.
             try:
@@ -167,7 +169,7 @@ def financial_data_setup(self, financial_reader):
                     continue
             #Skip appending Morningstar categories ie: 'Costs and expenses'.
             except:
-                continue   
+                continue
             #Append our data and placeholder rows
             if i[0] == d:
                 self.financial_data.append(i)
@@ -177,7 +179,7 @@ def financial_data_setup(self, financial_reader):
                                             'N/A', 'N/A','N/A'])
     #Append day for ISO standard dates.
     for idx in range (2, 7):
-        self.financial_data[0][idx] += '-01' 
+        self.financial_data[0][idx] += '-01'
 
 def financial_datacode_map():
     """Create a dictionary mapping datacodes to (row, col) in data."""

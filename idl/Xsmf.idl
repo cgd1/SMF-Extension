@@ -6,9 +6,9 @@ module com { module smf { module ticker { module getinfo {
     {
       // Modeled as an 'any' to allow it to be NULL/None/Missing.
       any getYahoo( [in] string a, [in] any b );
-      any getMorningKey( [in] string a, [in] any b );
-      any getMorningFin( [in] string a, [in] any b );
-      any getMorningQFin( [in] string a, [in] any b );
+      any getMorningKey( [in] string a, [in] any b, [in] any c);
+      any getMorningFin( [in] string a, [in] any b, [in] any c );
+      any getMorningQFin( [in] string a, [in] any b, [in] any c );
       any getADVFN( [in] string a, [in] any b );
     };
 

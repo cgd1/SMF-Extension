@@ -33,7 +33,7 @@ desc_xml.write('  <dependencies>\n')
 desc_xml.write('    <OpenOffice.org-minimal-version value="2.4" d:name="OpenOffice.org 2.4"/>\n')
 desc_xml.write('  </dependencies>\n')
 desc_xml.write('  <identifier value="' + addin_id + '"/>\n')
-desc_xml.write('  <version value="' + addin_version + '"/>\n')   
+desc_xml.write('  <version value="' + addin_version + '"/>\n')
 desc_xml.write('  <display-name>\n')
 desc_xml.write('    <name lang="en">' + addin_displayname + '</name>\n')
 desc_xml.write('  </display-name>\n')
@@ -86,7 +86,7 @@ def define_function(xml_file, function_name, description, parameters):
 
     for p, desc in parameters:
         # Optional parameters will have a displayname enclosed in square brackets.
-        p_name = p.strip("[]")        
+        p_name = p.strip("[]")
         xml_file.write('          <node oor:name="' + p_name + '" oor:op="replace">\n')
         xml_file.write('            <prop oor:name="DisplayName">\n')
         xml_file.write('              <value xml:lang="en">' + p_name + '</value>\n')
@@ -112,16 +112,16 @@ define_function(smf_xml, \
     [('a', 'The ticker symbol.'), ('b', 'The data code.')])
 define_function(smf_xml, \
     'getMorningKey', \
-    'Fetches Morningstar Key Ratios (11yr).  a = "TICKER", b = "DATACODE"', \
-    [('a', 'The ticker symbol.'), ('b', 'The data code.')])
+    'Fetches Morningstar Key Ratios (11yr).  a = "TICKER", b = "DATACODE", c = "EXCHANGE"',  \
+    [('a', 'The ticker symbol.'), ('b', 'The data code.'), ('c', 'Optional Exchange')])
 define_function(smf_xml, \
     'getMorningFin', \
-    'Fetches Morningstar Financials (5yr).  a = "TICKER", b = "DATACODE"', \
-    [('a', 'The ticker symbol.'), ('b', 'The data code.')])
+    'Fetches Morningstar Financials (5yr).  a = "TICKER", b = "DATACODE", c = "EXCHANGE"' , \
+    [('a', 'The ticker symbol.'), ('b', 'The data code.'), ('c', 'Optional Exchange')])
 define_function(smf_xml, \
     'getMorningQFin', \
-    'Fetches Morningstar Quarterly Financials (5qtr).  a = "TICKER", b = "DATACODE"', \
-    [('a', 'The ticker symbol.'), ('b', 'The data code.')])
+    'Fetches Morningstar Quarterly Financials (5qtr).  a = "TICKER", b = "DATACODE",  c = "EXCHANGE"', \
+    [('a', 'The ticker symbol.'), ('b', 'The data code.'), ('c', 'Optional Exchange')])
 define_function(smf_xml, \
     'getADVFN', 'Fetches ADVFN Financial Data.  a = "TICKER", b = "DATACODE"', \
     [('a', 'The ticker symbol.'), ('b', 'The data code."')])

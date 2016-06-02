@@ -34,7 +34,7 @@ import morningstar
 import advfn
 
 class SmfImpl(unohelper.Base, XSmf ):
-    """Define the main class for the SMF extension """    
+    """Define the main class for the SMF extension """
     def __init__( self, ctx ):
         self.ctx = ctx
         self.nyse_list = []
@@ -61,34 +61,36 @@ class SmfImpl(unohelper.Base, XSmf ):
             x = yahoo.fetch_data(self, ticker, datacode)
         return x
 
-    def getMorningKey( self, ticker, datacode):
+    def getMorningKey( self, ticker, datacode, exchange=None):
         """Return Keyratio data. Mapped to PyUNO through the Xsmf.rdb file"""
         try:
-            x = float(morningstar.fetch_keyratios(self, ticker, datacode))
+            x = float(morningstar.fetch_keyratios(self, ticker, datacode, exchange))
         except:
-            x = morningstar.fetch_keyratios(self, ticker, datacode)
+            x = morningstar.fetch_keyratios(self, ticker, datacode, exchange)
         return x
-    
-    def getMorningFin( self, ticker, datacode):
+
+    def getMorningFin( self, ticker, datacode, exchange=None):
         """Return Financial data. Mapped to PyUNO through the Xsmf.rdb file"""
         fin_type = ''
         try:
             x = float(morningstar.fetch_financials(self, fin_type, ticker,
-                                                    datacode))
+                                                    datacode, exchange))
         except:
-            x = morningstar.fetch_financials(self, fin_type, ticker, datacode)
+            x = morningstar.fetch_financials(self, fin_type, ticker,
+                                                    datacode, exchange)
         return x
-    
-    def getMorningQFin( self, ticker, datacode):
+
+    def getMorningQFin( self, ticker, datacode, exchange=None):
         """Return Quarterly data. Mapped to PyUNO through the Xsmf.rdb file"""
         fin_type = 'qtr'
         try:
             x = float(morningstar.fetch_financials(self, fin_type,  ticker,
-                                                    datacode))
+                                                    datacode, exchange))
         except:
-            x = morningstar.fetch_financials(self, fin_type, ticker, datacode)
+            x = morningstar.fetch_financials(self, fin_type, ticker, datacode,
+                                                    exchange)
         return x
-    
+
     def getADVFN( self, ticker, datacode):
         """Return ADVFN data. Mapped to PyUNO through the Xsmf.rdb file"""
         try:
@@ -96,7 +98,7 @@ class SmfImpl(unohelper.Base, XSmf ):
         except:
             x = advfn.fetch_advfn(self, ticker, datacode)
         return x
-    
+
 def find_exchange(self, ticker):
     """Determine exchange ticker is traded on for querying data providers"""
     exch_name = ['nasdaq','nyse','amex']
@@ -106,7 +108,7 @@ def find_exchange(self, ticker):
             if self.exchange_flag[0] == '0':
                     query_nasdaq(self, exch)
                     self.exchange_flag[0] = '1'
-            for i in self.nasdaq_list:                
+            for i in self.nasdaq_list:
                 if ticker == i[0]:
                     return 'XNAS'
         if exch == 'nyse':
@@ -151,7 +153,7 @@ def query_nasdaq(self, exch_name):
     elif exch_name == 'amex':
         self.amex_list = [row for row in exch_result]
     return 'Unknown Exception in query_nasdaq'
-    
+
 def createInstance( ctx ):
     return SmfImpl( ctx )
 
